@@ -2,6 +2,7 @@ package com.s3prototype.panacea;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -13,9 +14,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	SurfaceHolder sHolder;
 	int sWidth, sHeight;
 	Activity sActivity;
+		//These are the dimensions for the galaxy s II screen,
+		//which the game is based off. Scale the game to fit the screen,
+		//but the game is designed for this viewport size.
+	final double baseWidth = 800, baseHeight = 480;
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		drawThread.onTouch(event);
 		return super.onTouchEvent(event);
 	}
 
@@ -25,7 +31,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		this.context = sActivity.getApplicationContext();
 		sHolder = getHolder();
 		sHolder.addCallback(this);
-		drawThread = new DrawThread(context, this, sHolder, sActivity);
 	}
 
 	@Override
@@ -35,6 +40,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		sHolder = holder;
 		sHolder.addCallback(this);
 		
+		drawThread.scaledX = sWidth / baseWidth;
+		drawThread.scaledY = sHeight / baseHeight;
 	}
 
 	@Override
@@ -43,7 +50,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 			if (drawThread.getState() == Thread.State.NEW) {
 				drawThread.start();
 			}
-		} else  {
+		} else {
 			drawThread = new DrawThread(context, this, sHolder, sActivity);
 			drawThread.start();
 		}//else

@@ -7,8 +7,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 
 public class DrawThread extends Thread{
 	
@@ -18,7 +18,9 @@ public class DrawThread extends Thread{
 	Paint paint;
 	Activity surfaceActivity;
 	
-	int scaledW, scaledH;
+	double scaledX, scaledY;
+	
+	boolean gameInitialized;
 	
 	boolean okToRun;
 	
@@ -34,53 +36,63 @@ public class DrawThread extends Thread{
 	
 	public void setTileBitmaps(){
 		Bitmap temp;
-		scaledW = GameTile.getWidth() / drawSurface.getWidth() ;
-		scaledH = GameTile.getHeight() / drawSurface.getHeight();
 		//Load ground bitmap:
 		temp = BitmapFactory.decodeResource(surfaceActivity.getResources(), 
 											R.drawable.google);
-		temp = Bitmap.createScaledBitmap(temp, GameTile.getHeight(),
-										 GameTile.getHeight(), false);
+		temp = Bitmap.createScaledBitmap(temp, (int)GameTile.getWidth(),
+										 (int) GameTile.getHeight(),
+										false);
 		
 		GameTile.SetBitmap(GameTile.GROUND, temp);
 		
 		//Now load wall bitmap
 		temp = BitmapFactory.decodeResource(surfaceActivity.getResources(), 
-				R.drawable.google_buzz_icon);
-		temp = Bitmap.createScaledBitmap(temp, GameTile.getWidth(), 
-										 GameTile.getHeight(), false);
+											R.drawable.google_buzz_icon);
+		
+		temp = Bitmap.createScaledBitmap(temp, (int) GameTile.getWidth(),
+										 (int) GameTile.getHeight(),
+										 false);
 		
 		GameTile.SetBitmap(GameTile.WALL, temp);
 	}//setTileBitmaps()
 	
 	public void InitGame(){
-		GameTile.InitializeTiles(drawSurface.getWidth(), drawSurface.getHeight());
-		setTileBitmaps();
-		tiles = new GameTile[GameTile.NUM_TILES_W][GameTile.NUM_TILES_H];
-		int tileWidth = GameTile.getWidth();
-		int tileHeight = GameTile.getHeight();
-		
-		for(int i = 0; i < GameTile.NUM_TILES_W; i++){
-			for(int k = 0; k < GameTile.NUM_TILES_H; k++){
-				int xVal = (i * tileWidth) - tileWidth/2;
-				int yVal = (k * tileHeight) - tileHeight/2;
-				tiles[i][k] = new GameTile(xVal, yVal);
+		if(!gameInitialized){
+			scaledX = drawSurface.getWidth() / drawSurface.baseWidth;
+			scaledY = drawSurface.getHeight() / drawSurface.baseHeight;
+			
+			GameTile.InitializeTiles(drawSurface.getWidth(), drawSurface.getHeight(),
+									 scaledX, scaledY);
+			setTileBitmaps();
+			tiles = new GameTile[GameTile.NUM_TILES_W][GameTile.NUM_TILES_H];
+			double tileWidth = GameTile.getWidth();
+			double tileHeight = GameTile.getHeight();
+			
+			for(int i = 0; i < GameTile.NUM_TILES_W; i++){
+				for(int k = 0; k < GameTile.NUM_TILES_H; k++){
+					double xVal = (i * tileWidth) + tileWidth/2;
+					double yVal = (k * tileHeight) + tileHeight/2;
+					tiles[i][k] = new GameTile(xVal, yVal);
+				}
 			}
-		}
-	}
+			tiles[0][0].setType(GameTile.GROUND);
+			tiles[GameTile.NUM_TILES_W - 1][1].setType(GameTile.GROUND);
+			gameInitialized = true;
+		}//if()
+	}//InitGame()
 	
 	public void run(){
-		InitGame();//Call all necessary init methods
 		while(okToRun){
+			InitGame();//Call all necessary init methods
 			Canvas c = null;
 			if(!surfaceHolder.getSurface().isValid()){
 				continue;
 			}
 			c = surfaceHolder.lockCanvas();
 			synchronized(surfaceHolder){
-				try{
-					c.drawColor(Color.RED);
-					GameTile.DrawTiles(c, tiles);
+				try{ 
+					c.drawColor(Color.WHITE);
+					GameTile.DrawTiles(c, tiles, scaledX, scaledY);
 				} catch (Exception e){
 					e.printStackTrace();
 				}
@@ -91,8 +103,12 @@ public class DrawThread extends Thread{
 			}
 		}//while()
 	}
+
+	public void onTouch(MotionEvent event){
+		int action = event.getAction();
+	}//onTouch()
 	
 	public void setOkToRun(boolean status){
 		okToRun = status;
 	}
-}
+}//DrawThread

@@ -2,20 +2,24 @@ package com.s3prototype.panacea;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 public class GameTile {
 	/*Tiles will have a position, width, height and state.
 	 *But individual tiles all have the same width and height,
 	 *so those values should be static to the class*/
-	private static int width;
-	private static int height;
+	private static double width;
+	private static double height;
 	
-	private int x;
-	private int y;
+	private double x;
+	private double y;
+	
+	private static final Paint testPaint = new Paint();
 	
 	
 	public static final int	//tile status values
-		VACANT = 0, TAKEN = 1;
+		VACANT = 0, PLAYER = 1, NPC = 2;
 	
 	private int status = VACANT;
 	
@@ -32,34 +36,53 @@ public class GameTile {
 	
 	private static boolean alreadyInitialized;
 	
-	public GameTile(int x, int y){
+	public GameTile(double x, double y){
 		this.x = x;
 		this.y = y;
-	}
+	}//GameTile
 	
-	public static void InitializeTiles(int sWidth, int sHeight){
+	public static void InitializeTiles(int sWidth, int sHeight, double scaledX, double scaledY){
 		if(!alreadyInitialized){
 			bitmap = new Bitmap[NUM_TILE_TYPES];
-			width = 33;
-			height = 33;
-			NUM_TILES_W = sWidth/width;
-			NUM_TILES_H = sHeight/height;
+			width = (int) (40 * scaledX);
+			height = (int) (40 * scaledY);
+			NUM_TILES_W = (int) (sWidth/width);
+			NUM_TILES_H = (int) (sHeight/height);
+			if(NUM_TILES_W * width < sWidth) NUM_TILES_W++;
+			if(NUM_TILES_H * height < sHeight) NUM_TILES_H++;
 			alreadyInitialized = true;
 		}
-	}
+	}//InitializeTiles
 	
-	public static void DrawTiles(Canvas canvas, GameTile tile[][]){
+	public static void DrawTiles(Canvas canvas, GameTile tile[][], double scaledX, double scaledY){
 		for(int i = 0; i < NUM_TILES_W; i++){
 			for(int j = 0; j < NUM_TILES_H; j++){
 				int tileType = tile[i][j].getType();
-				int currX = tile[i][j].getX();
-				int currY = tile[i][j].getY();
-				canvas.drawBitmap(bitmap[tileType], currX - width/2, currY - height/2, null);
+				int tileState = tile[i][j].getStatus();
+				double currX = tile[i][j].getX();
+				double currY = tile[i][j].getY();
+				
+				int color = Color.GRAY;
+				
+				if(tileType == WALL){
+						color = Color.BLACK;
+				}//if()
+				
+				if(tileState == PLAYER){
+					color = Color.GREEN;
+				} else if(tileState == NPC){
+					color = Color.RED;
+				}
+				
+				testPaint.setColor(color);
+				
+				canvas.drawRect((float)(tile[i][j].x - width/2), (float)(tile[i][j].y - height/2),
+								(float)(tile[i][j].x + width/2), (float)(tile[i][j].y + height/2), testPaint);
 			}
 		}
 	}
 
-	public static int getWidth() {
+	public static double getWidth() {
 		return width;
 	}
 
@@ -67,7 +90,7 @@ public class GameTile {
 		GameTile.width = width;
 	}
 
-	public static int getHeight() {
+	public static double getHeight() {
 		return height;
 	}
 
@@ -75,7 +98,7 @@ public class GameTile {
 		GameTile.height = height;
 	}
 
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 
@@ -83,7 +106,7 @@ public class GameTile {
 		this.x = x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 

@@ -1,0 +1,9 @@
+This is an android rpg made with free art found online.
+It runs a tile-based 2D engine for movement around the world,
+and a simple collision-detection system for combat (which
+consists of spaceship battles).
+
+(8/13/13 - 00:12) Fixed tile engine so now it displays properly. Still a
+small glitch where screen is not redrawn if surfaceCreated not called.
+Despite that, things look good. Must remember that there's a potential
+error to be had if important code is 

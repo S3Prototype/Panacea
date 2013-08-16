@@ -26,7 +26,7 @@ public class GameTile {
 	public static final int	//tile type values
 		GROUND = 0, WALL = 1;
 	
-	private int type = WALL;
+	private int type = GROUND;
 	
 	private static final int NUM_TILE_TYPES = 2;
 	public static int NUM_TILES_W;
@@ -61,6 +61,10 @@ public class GameTile {
 				int tileState = tile[i][j].getStatus();
 				double currX = tile[i][j].getX();
 				double currY = tile[i][j].getY();
+				
+				if(j % 2 != 0){
+					tileType = WALL;
+				}
 				
 				int color = Color.GRAY;
 				

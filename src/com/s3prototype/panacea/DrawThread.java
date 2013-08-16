@@ -1,5 +1,7 @@
 package com.s3prototype.panacea;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,7 +18,7 @@ public class DrawThread extends Thread{
 	SurfaceHolder surfaceHolder;
 	Context surfaceContext;
 	Paint paint;
-	Activity surfaceActivity;
+	MainActivity surfaceActivity;
 	
 	double scaledX, scaledY;
 	
@@ -24,15 +26,23 @@ public class DrawThread extends Thread{
 	
 	boolean okToRun;
 	
+	Player player;
+	AI ai;
+	
+	public ReentrantLock threadLock;
+	
 	GameTile tiles[][];
 	
-	public DrawThread(Context vContext, GameView sView, SurfaceHolder vHolder, Activity sActivity){
+	public DrawThread(Context vContext, GameView sView, SurfaceHolder vHolder, MainActivity sActivity){
 		surfaceContext = vContext;
 		surfaceActivity = sActivity;
 		drawSurface = sView;
 		surfaceActivity = sActivity;
 		surfaceHolder = vHolder;
+		surfaceActivity.gameWasStarted = true;
 	}
+	
+	
 	
 	public void setTileBitmaps(){
 		Bitmap temp;
@@ -60,6 +70,18 @@ public class DrawThread extends Thread{
 		if(!gameInitialized){
 			scaledX = drawSurface.getWidth() / drawSurface.baseWidth;
 			scaledY = drawSurface.getHeight() / drawSurface.baseHeight;
+
+			float playerX = (float) ((drawSurface.getWidth()/2));
+			float playerY = (float) ((drawSurface.getHeight()/2));
+			if(surfaceActivity.shouldLoadFile){
+				player = (Player) GameData.characters.get(GameData.playerKey);
+			} else {
+				player = new Player(playerX, playerY);
+			}
+			float aiX = (float) (playerX + (scaledX * 100));
+			float aiY = (float) (playerY - (scaledY * 50));
+			if(ai == null)
+				ai = new AI(aiX, aiY);
 			
 			GameTile.InitializeTiles(drawSurface.getWidth(), drawSurface.getHeight(),
 									 scaledX, scaledY);
@@ -81,31 +103,36 @@ public class DrawThread extends Thread{
 		}//if()
 	}//InitGame()
 	
-	public void run(){
-		while(okToRun){
-			InitGame();//Call all necessary init methods
+	public void run() {
+		while (okToRun) {
+			InitGame();// Call all necessary init methods
 			Canvas c = null;
-			if(!surfaceHolder.getSurface().isValid()){
+			if (!surfaceHolder.getSurface().isValid()) {
 				continue;
 			}
 			c = surfaceHolder.lockCanvas();
-			synchronized(surfaceHolder){
-				try{ 
+			synchronized (surfaceHolder) {
+				try {
 					c.drawColor(Color.WHITE);
 					GameTile.DrawTiles(c, tiles, scaledX, scaledY);
-				} catch (Exception e){
+						player.update(c);
+						ai.update(c);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			
-			if(c != null){
+
+			if (c != null) {
 				surfaceHolder.unlockCanvasAndPost(c);
 			}
-		}//while()
+		}// while()
 	}
 
 	public void onTouch(MotionEvent event){
 		int action = event.getAction();
+		if(action == MotionEvent.ACTION_DOWN){
+			player.goToDestination(event.getX(), event.getY());
+		}
 	}//onTouch()
 	
 	public void setOkToRun(boolean status){

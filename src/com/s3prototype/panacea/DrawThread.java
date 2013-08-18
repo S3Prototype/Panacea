@@ -2,8 +2,8 @@ package com.s3prototype.panacea;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,10 +19,16 @@ public class DrawThread extends Thread{
 	Context surfaceContext;
 	Paint paint;
 	MainActivity surfaceActivity;
-	
+	public final String PLAYER_FILE = "playerInfo";
+	public final String CPU_FILE = "cpuInfo";
+	public final String PLAYER_X = "PLAYER_X";
+	public final String PLAYER_Y = "Player_Y";
+	public final String PLAYER_DX = "Player_DX";
+	public final String PLAYER_DY = "Player_DY";
+	public final String PLAYER_DREACHED = "Player_DREACHED";
+	static boolean gameInitialized = false;
+	boolean threadInitialized = false;
 	double scaledX, scaledY;
-	
-	boolean gameInitialized;
 	
 	boolean okToRun;
 	
@@ -67,17 +73,25 @@ public class DrawThread extends Thread{
 	}//setTileBitmaps()
 	
 	public void InitGame(){
-		if(!gameInitialized){
+		if(!threadInitialized){
 			scaledX = drawSurface.getWidth() / drawSurface.baseWidth;
 			scaledY = drawSurface.getHeight() / drawSurface.baseHeight;
+			
+			SharedPreferences prefs = surfaceActivity.getSharedPreferences(PLAYER_FILE, 0);
 
-			float playerX = (float) ((drawSurface.getWidth()/2));
-			float playerY = (float) ((drawSurface.getHeight()/2));
-			if(surfaceActivity.shouldLoadFile){
-				player = (Player) GameData.characters.get(GameData.playerKey);
-			} else {
-				player = new Player(playerX, playerY);
+			float playerX = prefs.getFloat(PLAYER_X, (float) (drawSurface.getWidth()/2));
+			float playerY = prefs.getFloat(PLAYER_Y, (float) (drawSurface.getHeight()/2));
+			
+			player = new Player(playerX, playerY);
+			
+			player.dstReached = prefs.getBoolean(PLAYER_DREACHED, true);
+			
+			if(!player.dstReached){
+				player.dstX = prefs.getFloat(PLAYER_DX, 50);
+				player.dstY = prefs.getFloat(PLAYER_DY, 50);
 			}
+				
+
 			float aiX = (float) (playerX + (scaledX * 100));
 			float aiY = (float) (playerY - (scaledY * 50));
 			if(ai == null)
@@ -100,31 +114,31 @@ public class DrawThread extends Thread{
 			tiles[0][0].setType(GameTile.GROUND);
 			tiles[GameTile.NUM_TILES_W - 1][1].setType(GameTile.GROUND);
 			gameInitialized = true;
+			threadInitialized = true;
 		}//if()
 	}//InitGame()
 	
 	public void run() {
 		while (okToRun) {
-			InitGame();// Call all necessary init methods
+			InitGame();// Call all necessary init methods 
 			Canvas c = null;
 			if (!surfaceHolder.getSurface().isValid()) {
 				continue;
 			}
 			c = surfaceHolder.lockCanvas();
-			synchronized (surfaceHolder) {
-				try {
-					c.drawColor(Color.WHITE);
-					GameTile.DrawTiles(c, tiles, scaledX, scaledY);
-						player.update(c);
-						ai.update(c);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
 			if (c != null) {
-				surfaceHolder.unlockCanvasAndPost(c);
-			}
+				synchronized (surfaceHolder) {
+					try {
+						c.drawColor(Color.WHITE);
+						GameTile.DrawTiles(c, tiles, scaledX, scaledY);
+							player.update(c);
+							ai.update(c);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+					surfaceHolder.unlockCanvasAndPost(c);
+			}//if c != null
 		}// while()
 	}
 
@@ -137,5 +151,16 @@ public class DrawThread extends Thread{
 	
 	public void setOkToRun(boolean status){
 		okToRun = status;
+		if(!okToRun){
+			SharedPreferences prefs = surfaceActivity.getSharedPreferences(PLAYER_FILE, 0);
+			SharedPreferences.Editor editor = prefs.edit();
+			
+			editor.putFloat(PLAYER_X, player.x);
+			editor.putFloat(PLAYER_Y, player.y);
+			editor.putFloat(PLAYER_DX, player.dstX);
+			editor.putFloat(PLAYER_DY, player.dstY);
+			editor.putBoolean(PLAYER_DREACHED, player.dstReached);
+			editor.commit();
+		}
 	}
 }//DrawThread

@@ -12,9 +12,10 @@ public class GameCharacter{
 	public float dstX, dstY;
 	public int radius;
 	public int color;
-	Paint paint = new Paint();
+	final Paint paint = new Paint();
 	public boolean dstReached = true;
 	public final float speed = 1;
+	public GameTile tile;  
 	
 	public GameCharacter(float x, float y){
 		radius = 50;
@@ -52,7 +53,8 @@ public class GameCharacter{
 			}
 			
 			dstReached = (dstXReached && dstYReached);
-		}
+		}//if()
+		
 		draw(canvas);
 	}
 }//GameCharacter class

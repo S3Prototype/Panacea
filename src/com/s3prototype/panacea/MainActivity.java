@@ -4,6 +4,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,7 +18,7 @@ public class MainActivity extends Activity {
 	DrawThread drawThread;
 	final ReentrantLock threadLock = new ReentrantLock();
 	boolean shouldLoadFile = false;
-	boolean fileWasSaved = false;
+	static boolean fileWasSaved = false;
 	boolean gameWasStarted = false;
 	SQLiteDatabase db;
 	GameDBHelper dbHelper;
@@ -38,11 +39,9 @@ public class MainActivity extends Activity {
 	public void onBackPressed(){
 		super.onBackPressed();
 	}
-
-
-	@Override
-	protected void onResume() {
-		if(fileWasSaved){
+	
+	public void loadGame(){
+		if(fileWasSaved && DrawThread.gameInitialized){
 			dbHelper = new GameDBHelper(getApplicationContext());
 			db = dbHelper.getReadableDatabase();
 			Cursor gameData = db.query(GameDBHelper.TABLE_GAMESTATE, null, null, null, null, null, null);
@@ -56,7 +55,7 @@ public class MainActivity extends Activity {
 				int dstXCol = GameDBHelper.Indices.dstX;
 				int dstYCol = GameDBHelper.Indices.dstY;
 				int dstReachedCol = GameDBHelper.Indices.dstReached;
-	
+				
 				while(!gameData.isAfterLast()){
 					if(gameData.getInt(GameDBHelper.Indices.type) == GameData.playerType){
 						savedPlayer = new Player(0, 0);
@@ -69,24 +68,23 @@ public class MainActivity extends Activity {
 					} else {
 						
 					}//else
+					gameData.moveToNext();
 				}//while()
 				shouldLoadFile = true;
 				fileWasSaved = false;
 				GameDBHelper.Cleanup(gameData, dbHelper, db);
-			}//if(fileWasSaved)
-		}
-		super.onResume();
-	}//onResume()
-
-	@Override
-	protected void onPause() {
-		if(!fileWasSaved && gameWasStarted){
+			}
+		}//if(fileWasSaved)
+	}
+	
+	public void saveGame(){
+		if(!fileWasSaved && drawThread.gameInitialized){
 			dbHelper = new GameDBHelper(getApplicationContext());
 			db = dbHelper.getWritableDatabase();
 			ContentValues values = new ContentValues();
 			
 			drawThread = gameView.drawThread;
-				//First put in the player info
+			//First put in the player info
 			values.put(GameDBHelper.COLUMN_TYPE, GameData.playerType);
 			values.put(GameDBHelper.COLUMN_NUM, 0);
 			values.put(GameDBHelper.COLUMN_X, drawThread.player.x);
@@ -99,7 +97,19 @@ public class MainActivity extends Activity {
 			fileWasSaved = true;
 			GameDBHelper.Cleanup(null, dbHelper, db);
 		}//if(!fileWasSaved)
-		super.onPause();
+		
+	}
+
+	@Override
+	protected void onResume() {
+		//loadGame();
+		super.onResume();
+	}//onResume()
+	
+	@Override
+	protected void onPause() {
+	//	saveGame();
+  		super.onPause();
 	}//onPause()
 
 	@Override

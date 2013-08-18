@@ -1,5 +1,7 @@
 package com.s3prototype.panacea;
 
+import java.util.List;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -53,6 +55,25 @@ public class GameTile {
 			alreadyInitialized = true;
 		}
 	}//InitializeTiles
+	
+	public static void CheckCharacterTiles(List <GameCharacter> charList){
+		for(GameCharacter currChar : charList){
+			if(currChar.tile != null){
+				if(currChar.x > (currChar.tile.x + currChar.tile.width/2) ||
+				   currChar.x < (currChar.tile.x - currChar.tile.width/2) ||
+				   currChar.y > (currChar.tile.y + currChar.tile.height/2) ||
+				   currChar.y > (currChar.tile.y - currChar.tile.height/2) 
+				){
+					//Then the character is not in its tile. So find its tile.
+					for(int i = 0; i < NUM_TILES_W; i++){
+						for(int j = 0; j < NUM_TILES_H; j++){
+							
+						}
+					}//outer for()
+				}
+			}//if(currChar.tile != null)
+		}
+	}//CheckCharacterTiles()
 	
 	public static void DrawTiles(Canvas canvas, GameTile tile[][], double scaledX, double scaledY){
 		for(int i = 0; i < NUM_TILES_W; i++){

@@ -13,3 +13,9 @@ puts the app in the background. Could potentially lose position data, etc.
 Third commit: Not much has changed. Been trying desperately to get the app
 to save user state when onPause() is called. No success yet. Very
 frustrating.
+
+(8/17/2013 - 22:59)
+Fourth commit: Fixed the user state data saving problem, temporarily. Next up,
+add code for updating where each character is (what tile they're on), code for
+changing rooms, and code to load up tiled maps. Then the conversation system,
+and the RPG portion will be complete.

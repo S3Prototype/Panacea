@@ -71,7 +71,7 @@ public class GameTile {
 						}
 					}//outer for()
 				}
-			}//if(currChar.tile != null)
+			}//if(currChar.tile != null) 
 		}
 	}//CheckCharacterTiles()
 	

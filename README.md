@@ -19,3 +19,10 @@ Fourth commit: Fixed the user state data saving problem, temporarily. Next up,
 add code for updating where each character is (what tile they're on), code for
 changing rooms, and code to load up tiled maps. Then the conversation system,
 and the RPG portion will be complete.
+
+(8/19/2013 - 12:31)
+Fifth commit: Refactored the game, added Room and Engine class, refactored
+GameTile class and DrawThread as well. Now All I need to do is fix a small bug
+that makes the user start off screen, add some extra information for starting
+x and y info for each player (possibly), and then make the tiled maps and load
+them up.

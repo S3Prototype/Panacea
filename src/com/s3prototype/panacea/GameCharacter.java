@@ -1,11 +1,8 @@
 package com.s3prototype.panacea;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Bundle;
 
 public class GameCharacter{
 	public float x, y;
@@ -54,7 +51,5 @@ public class GameCharacter{
 			
 			dstReached = (dstXReached && dstYReached);
 		}//if()
-		
-		draw(canvas);
 	}
 }//GameCharacter class

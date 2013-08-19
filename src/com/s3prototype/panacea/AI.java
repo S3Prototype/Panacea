@@ -1,7 +1,6 @@
 package com.s3prototype.panacea;
 
 import android.graphics.Color;
-import android.os.Bundle;
 
 public class AI extends GameCharacter{
 

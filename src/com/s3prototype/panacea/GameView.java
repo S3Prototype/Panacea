@@ -1,15 +1,9 @@
 package com.s3prototype.panacea;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
-
-import android.app.Activity;
 import android.content.Context;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -31,8 +25,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		drawThread.onTouch(event);
+		Engine.onTouch(event);
 		return super.onTouchEvent(event);
 	}
+	
+	
+
+	public GameView(Context context, AttributeSet attrs){
+		super(context, attrs);
+	}
+
+
 
 	public GameView(MainActivity activity, ReentrantLock lock) {
 		super(activity.getApplicationContext());

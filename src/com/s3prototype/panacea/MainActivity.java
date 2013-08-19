@@ -3,10 +3,7 @@ package com.s3prototype.panacea;
 import java.util.concurrent.locks.ReentrantLock;
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,66 +35,6 @@ public class MainActivity extends Activity {
 	@Override
 	public void onBackPressed(){
 		super.onBackPressed();
-	}
-	
-	public void loadGame(){
-		if(fileWasSaved && DrawThread.gameInitialized){
-			dbHelper = new GameDBHelper(getApplicationContext());
-			db = dbHelper.getReadableDatabase();
-			Cursor gameData = db.query(GameDBHelper.TABLE_GAMESTATE, null, null, null, null, null, null);
-			Player savedPlayer;
-			int count = gameData.getColumnCount() - 1;
-			
-			AI[] cpu = (count > 0) ? new AI[count] : null;
-			if(gameData.moveToFirst()){
-				int xCol = GameDBHelper.Indices.x;
-				int yCol = GameDBHelper.Indices.y;
-				int dstXCol = GameDBHelper.Indices.dstX;
-				int dstYCol = GameDBHelper.Indices.dstY;
-				int dstReachedCol = GameDBHelper.Indices.dstReached;
-				
-				while(!gameData.isAfterLast()){
-					if(gameData.getInt(GameDBHelper.Indices.type) == GameData.playerType){
-						savedPlayer = new Player(0, 0);
-						savedPlayer.x = gameData.getFloat(xCol);
-						savedPlayer.y = gameData.getFloat(yCol);
-						savedPlayer.dstX = gameData.getFloat(dstXCol);
-						savedPlayer.dstY = gameData.getFloat(dstYCol);
-						savedPlayer.dstReached = (gameData.getInt(dstReachedCol) == 1) ? true : false;
-						GameData.characters.put(GameData.playerKey, savedPlayer);
-					} else {
-						
-					}//else
-					gameData.moveToNext();
-				}//while()
-				shouldLoadFile = true;
-				fileWasSaved = false;
-				GameDBHelper.Cleanup(gameData, dbHelper, db);
-			}
-		}//if(fileWasSaved)
-	}
-	
-	public void saveGame(){
-		if(!fileWasSaved && drawThread.gameInitialized){
-			dbHelper = new GameDBHelper(getApplicationContext());
-			db = dbHelper.getWritableDatabase();
-			ContentValues values = new ContentValues();
-			
-			drawThread = gameView.drawThread;
-			//First put in the player info
-			values.put(GameDBHelper.COLUMN_TYPE, GameData.playerType);
-			values.put(GameDBHelper.COLUMN_NUM, 0);
-			values.put(GameDBHelper.COLUMN_X, drawThread.player.x);
-			values.put(GameDBHelper.COLUMN_Y, drawThread.player.y);
-			values.put(GameDBHelper.COLUMN_DSTX, drawThread.player.dstX);
-			values.put(GameDBHelper.COLUMN_DSTY, drawThread.player.dstY);
-			int reached = (drawThread.player.dstReached == true) ? 1 : 0;
-			values.put(GameDBHelper.COLUMN_DSTREACHED, reached);
-			db.insert(GameDBHelper.TABLE_GAMESTATE, null, values);
-			fileWasSaved = true;
-			GameDBHelper.Cleanup(null, dbHelper, db);
-		}//if(!fileWasSaved)
-		
 	}
 
 	@Override

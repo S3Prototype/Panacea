@@ -1,10 +1,7 @@
 package com.s3prototype.panacea;
 
-import java.util.List;
-
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 
 public class GameTile {
@@ -17,7 +14,7 @@ public class GameTile {
 	private double x;
 	private double y;
 	
-	private static final Paint testPaint = new Paint();
+	public static final Paint testPaint = new Paint();
 	
 	
 	public static final int	//tile status values
@@ -29,8 +26,9 @@ public class GameTile {
 		GROUND = 0, WALL = 1;
 	
 	private int type = GROUND;
+	private int formerType = type;
 	
-	private static final int NUM_TILE_TYPES = 2;
+	public static int NUM_TILE_TYPES = 2;
 	public static int NUM_TILES_W;
 	public static int NUM_TILES_H;
 	
@@ -50,62 +48,12 @@ public class GameTile {
 			height = (int) (40 * scaledY);
 			NUM_TILES_W = (int) (sWidth/width);
 			NUM_TILES_H = (int) (sHeight/height);
-			if(NUM_TILES_W * width < sWidth) NUM_TILES_W++;
-			if(NUM_TILES_H * height < sHeight) NUM_TILES_H++;
+				//If there aren't enough tiles, we have to add more until there are
+			while(NUM_TILES_W * width < sWidth) NUM_TILES_W++;
+			while(NUM_TILES_H * height < sHeight) NUM_TILES_H++;
 			alreadyInitialized = true;
 		}
 	}//InitializeTiles
-	
-	public static void CheckCharacterTiles(List <GameCharacter> charList){
-		for(GameCharacter currChar : charList){
-			if(currChar.tile != null){
-				if(currChar.x > (currChar.tile.x + currChar.tile.width/2) ||
-				   currChar.x < (currChar.tile.x - currChar.tile.width/2) ||
-				   currChar.y > (currChar.tile.y + currChar.tile.height/2) ||
-				   currChar.y > (currChar.tile.y - currChar.tile.height/2) 
-				){
-					//Then the character is not in its tile. So find its tile.
-					for(int i = 0; i < NUM_TILES_W; i++){
-						for(int j = 0; j < NUM_TILES_H; j++){
-							
-						}
-					}//outer for()
-				}
-			}//if(currChar.tile != null) 
-		}
-	}//CheckCharacterTiles()
-	
-	public static void DrawTiles(Canvas canvas, GameTile tile[][], double scaledX, double scaledY){
-		for(int i = 0; i < NUM_TILES_W; i++){
-			for(int j = 0; j < NUM_TILES_H; j++){
-				int tileType = tile[i][j].getType();
-				int tileState = tile[i][j].getStatus();
-				double currX = tile[i][j].getX();
-				double currY = tile[i][j].getY();
-				
-				if(j % 2 != 0){
-					tileType = WALL;
-				}
-				
-				int color = Color.GRAY;
-				
-				if(tileType == WALL){
-						color = Color.BLACK;
-				}//if()
-				
-				if(tileState == PLAYER){
-					color = Color.GREEN;
-				} else if(tileState == NPC){
-					color = Color.RED;
-				}
-				
-				testPaint.setColor(color);
-				
-				canvas.drawRect((float)(tile[i][j].x - width/2), (float)(tile[i][j].y - height/2),
-								(float)(tile[i][j].x + width/2), (float)(tile[i][j].y + height/2), testPaint);
-			}
-		}
-	}
 
 	public static double getWidth() {
 		return width;
@@ -138,6 +86,28 @@ public class GameTile {
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	public static void InitializeBitmaps(MainActivity surfaceActivity){
+		Bitmap temp;
+		//Load ground bitmap:
+		temp = BitmapFactory.decodeResource(surfaceActivity.getResources(), 
+											R.drawable.google);
+		temp = Bitmap.createScaledBitmap(temp, (int)GameTile.getWidth(),
+										 (int) GameTile.getHeight(),
+										false);
+		
+		GameTile.SetBitmap(GameTile.GROUND, temp);
+		
+		//Now load wall bitmap
+		temp = BitmapFactory.decodeResource(surfaceActivity.getResources(), 
+											R.drawable.google_buzz_icon);
+		
+		temp = Bitmap.createScaledBitmap(temp, (int) GameTile.getWidth(),
+										 (int) GameTile.getHeight(),
+										 false);
+		
+		GameTile.SetBitmap(GameTile.WALL, temp);
+	}
 
 	public static Bitmap GetBitmap(int tileType) {
 		return bitmap[tileType];
@@ -160,7 +130,12 @@ public class GameTile {
 	}
 
 	public void setType(int type) {
+		formerType = this.type;
 		this.type = type;
+	}
+	
+	public void revertType(){
+		type = formerType;
 	}
 
 	public static int getNumTiles() {

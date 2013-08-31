@@ -1,5 +1,11 @@
 package com.s3prototype.panacea;
 
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
@@ -29,8 +35,6 @@ public class GameTile {
 	private int formerType = type;
 	
 	public static int NUM_TILE_TYPES = 2;
-	public static int NUM_TILES_W;
-	public static int NUM_TILES_H;
 	
 	private static Bitmap bitmap[];
 	
@@ -41,16 +45,17 @@ public class GameTile {
 		this.y = y;
 	}//GameTile
 	
-	public static void InitializeTiles(int sWidth, int sHeight, double scaledX, double scaledY){
+	public static void InitializeTiles(GameView sActivity, int sWidth, int sHeight, double scaledX, double scaledY){
 		if(!alreadyInitialized){
 			bitmap = new Bitmap[NUM_TILE_TYPES];
-			width = (int) (40 * scaledX);
-			height = (int) (40 * scaledY);
-			NUM_TILES_W = (int) (sWidth/width);
+			width = (int) (33 * scaledX);
+			height = (int) (33 * scaledY);
+			
+/*			NUM_TILES_W = (int) (sWidth/width);
 			NUM_TILES_H = (int) (sHeight/height);
 				//If there aren't enough tiles, we have to add more until there are
 			while(NUM_TILES_W * width < sWidth) NUM_TILES_W++;
-			while(NUM_TILES_H * height < sHeight) NUM_TILES_H++;
+			while(NUM_TILES_H * height < sHeight) NUM_TILES_H++;*/
 			alreadyInitialized = true;
 		}
 	}//InitializeTiles
@@ -136,10 +141,6 @@ public class GameTile {
 	
 	public void revertType(){
 		type = formerType;
-	}
-
-	public static int getNumTiles() {
-		return NUM_TILES_W * NUM_TILES_H;
 	}
 	
 }//GameTile class 

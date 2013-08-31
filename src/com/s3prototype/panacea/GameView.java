@@ -19,7 +19,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		//These are the dimensions for the galaxy s II screen,
 		//which the game is based off. Scale the game to fit the screen,
 		//but the game is designed for this viewport size.
-	final double baseWidth = 800, baseHeight = 480;
+	final static double baseWidth = 800, baseHeight = 480;
 	public ReentrantLock threadLock;
 	
 	@Override

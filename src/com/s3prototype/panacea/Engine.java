@@ -1,10 +1,15 @@
 package com.s3prototype.panacea;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -38,8 +43,8 @@ public class Engine {
 				|| currChar.y > (currChar.tile.getY() + tHeight / 2)
 				|| currChar.y < (currChar.tile.getY() - tHeight / 2)) {
 					//Then the character is not in its tile, So find its tile
-					for(int i = 0; i < GameTile.NUM_TILES_W; i++){
-						for(int j = 0; j < GameTile.NUM_TILES_H; j++){
+					for(int i = 0; i < currRoom.NUM_TILES_W; i++){
+						for(int j = 0; j < currRoom.NUM_TILES_H; j++){
 							final GameTile currTile = currRoom.tile.get(i).get(j);
 							final double tX = currTile.getX();
 							final double tY = currTile.getY();
@@ -107,20 +112,30 @@ public class Engine {
 			GameTile.NUM_TILE_TYPES = 2;
 			//Initialize Tiles based on XML.
 				/**TODO: Add XML
-				 */
+				 */			
+			
 			final int sWidth = drawSurface.getWidth();
 			final int sHeight = drawSurface.getHeight();
 			scaledX = sWidth / drawSurface.baseWidth;
 			scaledY = sHeight / drawSurface.baseHeight;
 			
-			GameTile.InitializeTiles(sWidth, sHeight, scaledX, scaledY);
+			GameTile.InitializeTiles(drawSurface.sActivity.gameView, 
+									 sWidth, sHeight, scaledX, scaledY);
 			GameTile.InitializeBitmaps(drawSurface.sActivity);
 			
 			//Must use XML to initialize the rooms, and player info. This code'll work for now
 			player = new Player((float)(sWidth/2 * scaledX), (float)(sHeight/2 * scaledY));
-			RoomManager.gameRooms.add(new Room());
+			RoomManager.gameRooms.add(new Room(drawSurface.sActivity.getResources(), drawSurface.drawThread));
 			currRoom = RoomManager.gameRooms.get(0);
-			currRoom.InitTiles();
+			try {
+				currRoom.InitTiles(drawSurface.sActivity.getResources(), drawSurface.drawThread);
+			} catch (XmlPullParserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			initialized = true;
 		}//if(!initialized)

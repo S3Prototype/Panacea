@@ -27,6 +27,7 @@ public final class R {
         public static final int green_square=0x7f020003;
         public static final int ic_launcher=0x7f020004;
         public static final int red_square=0x7f020005;
+        public static final int tilef=0x7f020006;
     }
     public static final class id {
         public static final int action_settings=0x7f090002;
@@ -40,7 +41,10 @@ public final class R {
         public static final int main=0x7f080000;
     }
     public static final class raw {
-        public static final int savestates=0x7f040000;
+        public static final int blah=0x7f040000;
+        public static final int control_room=0x7f040001;
+        public static final int savestates=0x7f040002;
+        public static final int true_room=0x7f040003;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;

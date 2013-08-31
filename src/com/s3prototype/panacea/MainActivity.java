@@ -39,13 +39,11 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		//loadGame();
 		super.onResume();
 	}//onResume()
 	
 	@Override
 	protected void onPause() {
-	//	saveGame();
   		super.onPause();
 	}//onPause()
 
